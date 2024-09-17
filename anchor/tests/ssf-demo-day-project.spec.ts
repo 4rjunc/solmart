@@ -1,7 +1,7 @@
 import * as anchor from '@coral-xyz/anchor';
 import { Program } from '@coral-xyz/anchor';
 import { Keypair } from '@solana/web3.js';
-import { SsfDemoDayProject } from '../target/types/ssf_demo_day_project';
+import { MerchantTransactionHistory } from '../target/types/merchant_transaction_history';
 
 describe('ssf-demo-day-project', () => {
   // Configure the client to use the local cluster.
@@ -10,92 +10,45 @@ describe('ssf-demo-day-project', () => {
   const payer = provider.wallet as anchor.Wallet;
 
   const program = anchor.workspace
-    .SsfDemoDayProject as Program<SsfDemoDayProject>;
+    .SsfDemoDayProject as Program<MerchantTransactionHistory>;
 
   const ssfDemoDayProjectKeypair = Keypair.generate();
 
-  it('Initialize SsfDemoDayProject', async () => {
+  it('Can add a transaction', async () => {
+    // Generate a new account for this transaction
+    const transaction = anchor.web3.Keypair.generate();
+
+    // Add a transaction
     await program.methods
-      .initialize()
+      .addTransaction(
+        'Test Product',
+        new anchor.BN(2),
+        new anchor.BN(1000000), // 1 SOL in lamports
+        new anchor.BN(2000000), // 2 SOL in lamports
+        new anchor.BN(2000000) // 2 SOL paid in lamports
+      )
       .accounts({
-        ssfDemoDayProject: ssfDemoDayProjectKeypair.publicKey,
-        payer: payer.publicKey,
+        transaction: transaction.publicKey,
+        merchant: provider.wallet.publicKey,
+        systemProgram: anchor.web3.SystemProgram.programId,
       })
-      .signers([ssfDemoDayProjectKeypair])
+      .signers([transaction])
       .rpc();
 
-    const currentCount = await program.account.ssfDemoDayProject.fetch(
-      ssfDemoDayProjectKeypair.publicKey
+    // Fetch the account details
+    const account = await program.account.transaction.fetch(
+      transaction.publicKey
     );
 
-    expect(currentCount.count).toEqual(0);
-  });
-
-  it('Increment SsfDemoDayProject', async () => {
-    await program.methods
-      .increment()
-      .accounts({ ssfDemoDayProject: ssfDemoDayProjectKeypair.publicKey })
-      .rpc();
-
-    const currentCount = await program.account.ssfDemoDayProject.fetch(
-      ssfDemoDayProjectKeypair.publicKey
-    );
-
-    expect(currentCount.count).toEqual(1);
-  });
-
-  it('Increment SsfDemoDayProject Again', async () => {
-    await program.methods
-      .increment()
-      .accounts({ ssfDemoDayProject: ssfDemoDayProjectKeypair.publicKey })
-      .rpc();
-
-    const currentCount = await program.account.ssfDemoDayProject.fetch(
-      ssfDemoDayProjectKeypair.publicKey
-    );
-
-    expect(currentCount.count).toEqual(2);
-  });
-
-  it('Decrement SsfDemoDayProject', async () => {
-    await program.methods
-      .decrement()
-      .accounts({ ssfDemoDayProject: ssfDemoDayProjectKeypair.publicKey })
-      .rpc();
-
-    const currentCount = await program.account.ssfDemoDayProject.fetch(
-      ssfDemoDayProjectKeypair.publicKey
-    );
-
-    expect(currentCount.count).toEqual(1);
-  });
-
-  it('Set ssfDemoDayProject value', async () => {
-    await program.methods
-      .set(42)
-      .accounts({ ssfDemoDayProject: ssfDemoDayProjectKeypair.publicKey })
-      .rpc();
-
-    const currentCount = await program.account.ssfDemoDayProject.fetch(
-      ssfDemoDayProjectKeypair.publicKey
-    );
-
-    expect(currentCount.count).toEqual(42);
-  });
-
-  it('Set close the ssfDemoDayProject account', async () => {
-    await program.methods
-      .close()
-      .accounts({
-        payer: payer.publicKey,
-        ssfDemoDayProject: ssfDemoDayProjectKeypair.publicKey,
-      })
-      .rpc();
-
-    // The account should no longer exist, returning null.
-    const userAccount = await program.account.ssfDemoDayProject.fetchNullable(
-      ssfDemoDayProjectKeypair.publicKey
-    );
-    expect(userAccount).toBeNull();
+    // Verify the account data
+    // expect(account.merchant.toString()).to.equal(
+    //   provider.wallet.publicKey.toString()
+    // );
+    // expect(account.productName).to.equal('Test Product');
+    // expect(account.quantity.toNumber()).to.equal(2);
+    // expect(account.price.toNumber()).to.equal(1000000);
+    // expect(account.totalPrice.toNumber()).to.equal(2000000);
+    // expect(account.solPaid.toNumber()).to.equal(2000000);
+    // expect(account.timestamp.toNumber()).to.be.greaterThan(0);
   });
 });

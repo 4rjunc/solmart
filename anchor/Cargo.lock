@@ -1593,6 +1593,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "ssf-demo-day-project"
+version = "0.1.0"
+dependencies = [
+ "anchor-lang",
+]
+
+[[package]]
 name = "subtle"
 version = "2.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1630,13 +1637,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.51",
-]
-
-[[package]]
-name = "ssf-demo-day-project"
-version = "0.1.0"
-dependencies = [
- "anchor-lang",
 ]
 
 [[package]]
