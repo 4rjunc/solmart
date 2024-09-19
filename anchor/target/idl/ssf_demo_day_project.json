@@ -8,26 +8,57 @@
   },
   "instructions": [
     {
-      "name": "close",
+      "name": "create_user_account",
       "discriminator": [
-        98,
-        165,
-        201,
-        177,
-        108,
-        65,
-        206,
-        96
+        146,
+        68,
+        100,
+        69,
+        63,
+        46,
+        182,
+        199
       ],
       "accounts": [
         {
-          "name": "payer",
+          "name": "user_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  117,
+                  110,
+                  116,
+                  101,
+                  114,
+                  112,
+                  114,
+                  111,
+                  103,
+                  114,
+                  97,
+                  109
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          }
+        },
+        {
+          "name": "user",
           "writable": true,
           "signer": true
         },
         {
-          "name": "ssf_demo_day_project",
-          "writable": true
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
         }
       ],
       "args": []
@@ -46,8 +77,39 @@
       ],
       "accounts": [
         {
-          "name": "ssf_demo_day_project",
-          "writable": true
+          "name": "user_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  117,
+                  110,
+                  116,
+                  101,
+                  114,
+                  112,
+                  114,
+                  111,
+                  103,
+                  114,
+                  97,
+                  109
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          }
+        },
+        {
+          "name": "user",
+          "signer": true
         }
       ],
       "args": []
@@ -66,8 +128,39 @@
       ],
       "accounts": [
         {
-          "name": "ssf_demo_day_project",
-          "writable": true
+          "name": "user_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  117,
+                  110,
+                  116,
+                  101,
+                  114,
+                  112,
+                  114,
+                  111,
+                  103,
+                  114,
+                  97,
+                  109
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          }
+        },
+        {
+          "name": "user",
+          "signer": true
         }
       ],
       "args": []
@@ -84,74 +177,38 @@
         155,
         237
       ],
-      "accounts": [
-        {
-          "name": "payer",
-          "writable": true,
-          "signer": true
-        },
-        {
-          "name": "ssf_demo_day_project",
-          "writable": true,
-          "signer": true
-        },
-        {
-          "name": "system_program",
-          "address": "11111111111111111111111111111111"
-        }
-      ],
+      "accounts": [],
       "args": []
-    },
-    {
-      "name": "set",
-      "discriminator": [
-        198,
-        51,
-        53,
-        241,
-        116,
-        29,
-        126,
-        194
-      ],
-      "accounts": [
-        {
-          "name": "ssf_demo_day_project",
-          "writable": true
-        }
-      ],
-      "args": [
-        {
-          "name": "value",
-          "type": "u8"
-        }
-      ]
     }
   ],
   "accounts": [
     {
-      "name": "SsfDemoDayProject",
+      "name": "UserAccount",
       "discriminator": [
-        135,
-        64,
-        223,
-        168,
-        233,
-        143,
-        162,
-        215
+        211,
+        33,
+        136,
+        16,
+        186,
+        110,
+        242,
+        127
       ]
     }
   ],
   "types": [
     {
-      "name": "SsfDemoDayProject",
+      "name": "UserAccount",
       "type": {
         "kind": "struct",
         "fields": [
           {
             "name": "count",
-            "type": "u8"
+            "type": "u64"
+          },
+          {
+            "name": "user",
+            "type": "pubkey"
           }
         ]
       }

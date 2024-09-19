@@ -1,54 +1,158 @@
 import * as anchor from '@coral-xyz/anchor';
-import { Program } from '@coral-xyz/anchor';
-import { Keypair } from '@solana/web3.js';
-import { MerchantTransactionHistory } from '../target/types/merchant_transaction_history';
+import { Program, BN } from '@coral-xyz/anchor';
+import { Keypair, PublicKey } from '@solana/web3.js';
+import { SsfDemoDayProject } from '../target/types/ssf_demo_day_project';
+import { before } from 'node:test';
 
 describe('ssf-demo-day-project', () => {
   // Configure the client to use the local cluster.
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
-  const payer = provider.wallet as anchor.Wallet;
+  // const user1: anchor.web3.Signer = provider.wallet as anchor.Wallet;
+  const user1: anchor.web3.Signer = anchor.web3.Keypair.generate();
+  const user2: anchor.web3.Signer = anchor.web3.Keypair.generate();
 
   const program = anchor.workspace
-    .SsfDemoDayProject as Program<MerchantTransactionHistory>;
+    .SsfDemoDayProject as Program<SsfDemoDayProject>;
 
   const ssfDemoDayProjectKeypair = Keypair.generate();
 
-  it('Can add a transaction', async () => {
-    // Generate a new account for this transaction
-    const transaction = anchor.web3.Keypair.generate();
+  before(async () => {
+    await provider.connection.requestAirdrop(user1.publicKey, 1000000000);
+    await provider.connection.requestAirdrop(user2.publicKey, 1000000000);
+  });
 
-    // Add a transaction
+  it('Initialize Program', async () => {
+    await program.methods.initialize().rpc();
+  });
+
+  it('Initializing User 1 Account ', async () => {
+    const [userAccountPDA, seeds] =
+      await anchor.web3.PublicKey.findProgramAddress(
+        [Buffer.from('counterprogram'), user1.publicKey.toBuffer()],
+        program.programId
+      );
+
     await program.methods
-      .addTransaction(
-        'Test Product',
-        new anchor.BN(2),
-        new anchor.BN(1000000), // 1 SOL in lamports
-        new anchor.BN(2000000), // 2 SOL in lamports
-        new anchor.BN(2000000) // 2 SOL paid in lamports
-      )
+      .createUserAccount()
       .accounts({
-        transaction: transaction.publicKey,
-        merchant: provider.wallet.publicKey,
-        systemProgram: anchor.web3.SystemProgram.programId,
+        userAccount: userAccountPDA,
+        user: user1.publicKey,
       })
-      .signers([transaction])
+      .signers([user1])
       .rpc();
 
-    // Fetch the account details
-    const account = await program.account.transaction.fetch(
-      transaction.publicKey
+    const userAccount = await program.account.userAccount.fetch(userAccountPDA);
+
+    const count =
+      userAccount.count instanceof BN
+        ? userAccount.count.toNumber()
+        : userAccount.count;
+    expect(count).toEqual(0);
+    expect(userAccount.user.toString()).toEqual(user1.publicKey.toString());
+  });
+
+  //user2 ;
+  it('Initializing User 2 Account ', async () => {
+    const [userAccountPDA, seeds] =
+      await anchor.web3.PublicKey.findProgramAddress(
+        [Buffer.from('counterprogram'), user2.publicKey.toBuffer()],
+        program.programId
+      );
+
+    await program.methods
+      .createUserAccount()
+      .accounts({
+        userAccount: userAccountPDA,
+        user: user2.publicKey,
+      })
+      .signers([user2])
+      .rpc();
+
+    const userAccount = await program.account.userAccount.fetch(userAccountPDA);
+
+    const count =
+      userAccount.count instanceof BN
+        ? userAccount.count.toNumber()
+        : userAccount.count;
+    expect(count).toEqual(0);
+    expect(userAccount.user.toString()).toEqual(user2.publicKey.toString());
+  });
+
+  //user2 increment X 2
+  it('User 2 Increment Twice ', async () => {
+    const [userAccountPDA, seeds] =
+      await anchor.web3.PublicKey.findProgramAddress(
+        [Buffer.from('counterprogram'), user2.publicKey.toBuffer()],
+        program.programId
+      );
+
+    await program.methods
+      .increment()
+      .accounts({
+        userAccount: userAccountPDA,
+        user: user2.publicKey,
+      })
+      .signers([user2])
+      .rpc();
+
+    await program.methods
+      .increment()
+      .accounts({
+        userAccount: userAccountPDA,
+        user: user2.publicKey,
+      })
+      .signers([user2])
+      .rpc();
+
+    const userAccount = await program.account.userAccount.fetch(userAccountPDA);
+
+    const count =
+      userAccount.count instanceof BN
+        ? userAccount.count.toNumber()
+        : userAccount.count;
+    expect(count).toEqual(2);
+  });
+
+  // user1 2 increment 1 decrement
+  it('User 1 2 increment 1 decrement', async () => {
+    let [userAccountPDA, bump] = await anchor.web3.PublicKey.findProgramAddress(
+      [Buffer.from('counterprogram'), user1.publicKey.toBuffer()],
+      program.programId
     );
 
-    // Verify the account data
-    // expect(account.merchant.toString()).to.equal(
-    //   provider.wallet.publicKey.toString()
-    // );
-    // expect(account.productName).to.equal('Test Product');
-    // expect(account.quantity.toNumber()).to.equal(2);
-    // expect(account.price.toNumber()).to.equal(1000000);
-    // expect(account.totalPrice.toNumber()).to.equal(2000000);
-    // expect(account.solPaid.toNumber()).to.equal(2000000);
-    // expect(account.timestamp.toNumber()).to.be.greaterThan(0);
+    await program.methods
+      .increment()
+      .accounts({
+        userAccount: userAccountPDA,
+        user: user1.publicKey,
+      })
+      .signers([user1])
+      .rpc();
+
+    await program.methods
+      .increment()
+      .accounts({
+        userAccount: userAccountPDA,
+        user: user1.publicKey,
+      })
+      .signers([user1])
+      .rpc();
+
+    await program.methods
+      .decrement()
+      .accounts({
+        userAccount: userAccountPDA,
+        user: user1.publicKey,
+      })
+      .signers([user1])
+      .rpc();
+
+    const userAccount = await program.account.userAccount.fetch(userAccountPDA);
+    const count =
+      userAccount.count instanceof BN
+        ? userAccount.count.toNumber()
+        : userAccount.count;
+    expect(count).toEqual(1);
   });
 });

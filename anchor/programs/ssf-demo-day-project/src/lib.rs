@@ -5,89 +5,65 @@ use anchor_lang::prelude::*;
 declare_id!("HL4kgSUiSG7CaC7GojG1UGt7zA6MeSqoBcXH9bjvDpu1");
 
 #[program]
-pub mod merchant_transaction_history {
-    use super::*;
+pub mod ssf_demo_day_project {
+  use super::*;
 
-    pub fn add_transaction(
-        ctx: Context<AddTransaction>,
-        product_name: String,
-        quantity: u64,
-        price: u64,
-        total_price: u64,
-        sol_paid: u64,
-    ) -> Result<()> {
-        let transaction = &mut ctx.accounts.transaction;
-        let merchant = &ctx.accounts.merchant;
+  pub fn initialize(ctx: Context<Initialize>) -> Result<()>{
+    Ok(())
+  }
 
-        transaction.merchant = merchant.key();
-        transaction.product_name = product_name;
-        transaction.quantity = quantity;
-        transaction.price = price;
-        transaction.total_price = total_price;
-        transaction.sol_paid = sol_paid;
-        transaction.timestamp = Clock::get()?.unix_timestamp;
+  pub fn create_user_account(ctx: Context<CreateUserAccount>) -> Result<()>{
+    let user_account = &mut ctx.accounts.user_account;
+    user_account.count = 0;
+    user_account.user = ctx.accounts.user.key();
+    Ok(())
+  }
 
-        Ok(())
-    }
+  pub fn increment(ctx: Context<UpdateUserAccount>) -> Result<()>{
+    let user_account = &mut ctx.accounts.user_account;
+    user_account.count += 1;
+    Ok(())
+  }
 
-    pub fn get_transaction(ctx: Context<GetTransaction>) -> Result<TransactionDetails> {
-        let transaction = &ctx.accounts.transaction;
-
-        Ok(TransactionDetails {
-            merchant: transaction.merchant,
-            product_name: transaction.product_name.clone(),
-            quantity: transaction.quantity,
-            price: transaction.price,
-            total_price: transaction.total_price,
-            sol_paid: transaction.sol_paid,
-            timestamp: transaction.timestamp,
-        })
-    }
+  pub fn decrement(ctx: Context<UpdateUserAccount>)-> Result<()>{
+    let user_account = &mut ctx.accounts.user_account;
+    user_account.count -=1;
+    Ok(())
+  }
 }
 
 #[derive(Accounts)]
-pub struct AddTransaction<'info> {
-    #[account(init, payer = merchant, space = Transaction::LEN)]
-    pub transaction: Account<'info, Transaction>,
-    #[account(mut)]
-    pub merchant: Signer<'info>,
-    pub system_program: Program<'info, System>,
+pub struct Initialize {}
+
+#[derive(Accounts)]
+pub struct CreateUserAccount<'info>{
+  #[account(
+    init,
+    payer=user,
+    space = 8 + 8 + 32, // discriminator + count + Pubkey
+    seeds=[b"counterprogram", user.key().as_ref()],
+    bump
+  )]
+  pub user_account: Account<'info, UserAccount>,
+
+  #[account(mut)]
+  pub user: Signer<'info>,
+  pub system_program: Program<'info, System>
 }
 
 #[derive(Accounts)]
-pub struct GetTransaction<'info> {
-    pub transaction: Account<'info, Transaction>,
+pub struct UpdateUserAccount<'info>  {
+  #[account(
+    mut,
+    seeds=[b"counterprogram", user.key().as_ref()],
+    bump
+  )]
+  pub user_account: Account<'info, UserAccount>,
+  pub user: Signer<'info>,
 }
 
 #[account]
-pub struct Transaction {
-    pub merchant: Pubkey,
-    pub product_name: String,
-    pub quantity: u64,
-    pub price: u64,
-    pub total_price: u64,
-    pub sol_paid: u64,
-    pub timestamp: i64,
-}
-
-#[derive(AnchorSerialize, AnchorDeserialize, Clone, Debug)]
-pub struct TransactionDetails {
-    pub merchant: Pubkey,
-    pub product_name: String,
-    pub quantity: u64,
-    pub price: u64,
-    pub total_price: u64,
-    pub sol_paid: u64,
-    pub timestamp: i64,
-}
-
-impl Transaction {
-    const LEN: usize = 8 + // discriminator
-        32 + // merchant pubkey
-        4 + 50 + // product_name (max 50 chars)
-        8 + // quantity
-        8 + // price
-        8 + // total_price
-        8 + // sol_paid
-        8; // timestamp
+pub struct UserAccount{
+  pub count: u64,
+  pub user: Pubkey
 }
