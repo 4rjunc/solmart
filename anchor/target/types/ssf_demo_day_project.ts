@@ -14,51 +14,149 @@ export type SsfDemoDayProject = {
   },
   "instructions": [
     {
-      "name": "createUserAccount",
+      "name": "addTransaction",
       "discriminator": [
-        146,
-        68,
-        100,
-        69,
-        63,
-        46,
-        182,
-        199
+        48,
+        96,
+        174,
+        112,
+        81,
+        30,
+        239,
+        89
       ],
       "accounts": [
         {
-          "name": "userAccount",
+          "name": "transaction",
           "writable": true,
           "pda": {
             "seeds": [
               {
                 "kind": "const",
                 "value": [
-                  99,
-                  111,
-                  117,
-                  110,
                   116,
-                  101,
-                  114,
-                  112,
-                  114,
-                  111,
-                  103,
                   114,
                   97,
-                  109
+                  110,
+                  115,
+                  97,
+                  99,
+                  116,
+                  105,
+                  111,
+                  110
                 ]
               },
               {
                 "kind": "account",
-                "path": "user"
+                "path": "merchant"
+              },
+              {
+                "kind": "account",
+                "path": "merchant_data.transaction_count",
+                "account": "merchantData"
               }
             ]
           }
         },
         {
-          "name": "user",
+          "name": "merchantData",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  101,
+                  114,
+                  99,
+                  104,
+                  97,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "merchant"
+              }
+            ]
+          }
+        },
+        {
+          "name": "merchant",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "productName",
+          "type": "string"
+        },
+        {
+          "name": "quantity",
+          "type": "u64"
+        },
+        {
+          "name": "price",
+          "type": "u64"
+        },
+        {
+          "name": "totalPrice",
+          "type": "u64"
+        },
+        {
+          "name": "solPaid",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "initializeMerchant",
+      "discriminator": [
+        7,
+        90,
+        74,
+        38,
+        99,
+        111,
+        142,
+        77
+      ],
+      "accounts": [
+        {
+          "name": "merchantData",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  101,
+                  114,
+                  99,
+                  104,
+                  97,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "merchant"
+              }
+            ]
+          }
+        },
+        {
+          "name": "merchant",
           "writable": true,
           "signer": true
         },
@@ -68,153 +166,85 @@ export type SsfDemoDayProject = {
         }
       ],
       "args": []
-    },
-    {
-      "name": "decrement",
-      "discriminator": [
-        106,
-        227,
-        168,
-        59,
-        248,
-        27,
-        150,
-        101
-      ],
-      "accounts": [
-        {
-          "name": "userAccount",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  99,
-                  111,
-                  117,
-                  110,
-                  116,
-                  101,
-                  114,
-                  112,
-                  114,
-                  111,
-                  103,
-                  114,
-                  97,
-                  109
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "user"
-              }
-            ]
-          }
-        },
-        {
-          "name": "user",
-          "signer": true
-        }
-      ],
-      "args": []
-    },
-    {
-      "name": "increment",
-      "discriminator": [
-        11,
-        18,
-        104,
-        9,
-        104,
-        174,
-        59,
-        33
-      ],
-      "accounts": [
-        {
-          "name": "userAccount",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  99,
-                  111,
-                  117,
-                  110,
-                  116,
-                  101,
-                  114,
-                  112,
-                  114,
-                  111,
-                  103,
-                  114,
-                  97,
-                  109
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "user"
-              }
-            ]
-          }
-        },
-        {
-          "name": "user",
-          "signer": true
-        }
-      ],
-      "args": []
-    },
-    {
-      "name": "initialize",
-      "discriminator": [
-        175,
-        175,
-        109,
-        31,
-        13,
-        152,
-        155,
-        237
-      ],
-      "accounts": [],
-      "args": []
     }
   ],
   "accounts": [
     {
-      "name": "userAccount",
+      "name": "merchantData",
       "discriminator": [
-        211,
-        33,
-        136,
-        16,
-        186,
-        110,
+        56,
+        192,
+        70,
+        28,
+        212,
+        51,
+        231,
+        149
+      ]
+    },
+    {
+      "name": "transaction",
+      "discriminator": [
+        11,
+        24,
+        174,
+        129,
+        203,
+        117,
         242,
-        127
+        23
       ]
     }
   ],
   "types": [
     {
-      "name": "userAccount",
+      "name": "merchantData",
       "type": {
         "kind": "struct",
         "fields": [
           {
-            "name": "count",
+            "name": "transactionCount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "transaction",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "merchant",
+            "type": "pubkey"
+          },
+          {
+            "name": "productName",
+            "type": "string"
+          },
+          {
+            "name": "quantity",
             "type": "u64"
           },
           {
-            "name": "user",
-            "type": "pubkey"
+            "name": "price",
+            "type": "u64"
+          },
+          {
+            "name": "totalPrice",
+            "type": "u64"
+          },
+          {
+            "name": "solPaid",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          },
+          {
+            "name": "transactionNumber",
+            "type": "u64"
           }
         ]
       }

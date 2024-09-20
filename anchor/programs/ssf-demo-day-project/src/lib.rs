@@ -6,64 +6,101 @@ declare_id!("HL4kgSUiSG7CaC7GojG1UGt7zA6MeSqoBcXH9bjvDpu1");
 
 #[program]
 pub mod ssf_demo_day_project {
-  use super::*;
+    use super::*;
 
-  pub fn initialize(ctx: Context<Initialize>) -> Result<()>{
-    Ok(())
-  }
+    pub fn initialize_merchant(ctx: Context<InitializeMerchant>) -> Result<()> {
+        let merchant_data = &mut ctx.accounts.merchant_data;
+        merchant_data.transaction_count = 0;
+        Ok(())
+    }
 
-  pub fn create_user_account(ctx: Context<CreateUserAccount>) -> Result<()>{
-    let user_account = &mut ctx.accounts.user_account;
-    user_account.count = 0;
-    user_account.user = ctx.accounts.user.key();
-    Ok(())
-  }
+    pub fn add_transaction(
+        ctx: Context<AddTransaction>,
+        product_name: String,
+        quantity: u64,
+        price: u64,
+        total_price: u64,
+        sol_paid: u64,
+    ) -> Result<()> {
+        let transaction = &mut ctx.accounts.transaction;
+        let merchant_data = &mut ctx.accounts.merchant_data;
 
-  pub fn increment(ctx: Context<UpdateUserAccount>) -> Result<()>{
-    let user_account = &mut ctx.accounts.user_account;
-    user_account.count += 1;
-    Ok(())
-  }
+        transaction.merchant = ctx.accounts.merchant.key();
+        transaction.product_name = product_name;
+        transaction.quantity = quantity;
+        transaction.price = price;
+        transaction.total_price = total_price;
+        transaction.sol_paid = sol_paid;
+        transaction.timestamp = Clock::get()?.unix_timestamp;
+        transaction.transaction_number = merchant_data.transaction_count;
 
-  pub fn decrement(ctx: Context<UpdateUserAccount>)-> Result<()>{
-    let user_account = &mut ctx.accounts.user_account;
-    user_account.count -=1;
-    Ok(())
-  }
+        merchant_data.transaction_count += 1;
+
+        Ok(())
+    }
 }
 
 #[derive(Accounts)]
-pub struct Initialize {}
-
-#[derive(Accounts)]
-pub struct CreateUserAccount<'info>{
-  #[account(
-    init,
-    payer=user,
-    space = 8 + 8 + 32, // discriminator + count + Pubkey
-    seeds=[b"counterprogram", user.key().as_ref()],
-    bump
-  )]
-  pub user_account: Account<'info, UserAccount>,
-
-  #[account(mut)]
-  pub user: Signer<'info>,
-  pub system_program: Program<'info, System>
+pub struct InitializeMerchant<'info> {
+    #[account(
+        init,
+        payer = merchant,
+        space = 8 + 8, // discriminator + transaction_count
+        seeds = [b"merchant", merchant.key().as_ref()],
+        bump
+    )]
+    pub merchant_data: Account<'info, MerchantData>,
+    #[account(mut)]
+    pub merchant: Signer<'info>,
+    pub system_program: Program<'info, System>,
 }
 
 #[derive(Accounts)]
-pub struct UpdateUserAccount<'info>  {
-  #[account(
-    mut,
-    seeds=[b"counterprogram", user.key().as_ref()],
-    bump
-  )]
-  pub user_account: Account<'info, UserAccount>,
-  pub user: Signer<'info>,
+pub struct AddTransaction<'info> {
+    #[account(
+        init,
+        payer = merchant,
+        space = Transaction::LEN,
+        seeds = [b"transaction", merchant.key().as_ref(), &merchant_data.transaction_count.to_le_bytes()],
+        bump
+    )]
+    pub transaction: Account<'info, Transaction>,
+    #[account(
+        mut,
+        seeds = [b"merchant", merchant.key().as_ref()],
+        bump
+    )]
+    pub merchant_data: Account<'info, MerchantData>,
+    #[account(mut)]
+    pub merchant: Signer<'info>,
+    pub system_program: Program<'info, System>,
 }
 
 #[account]
-pub struct UserAccount{
-  pub count: u64,
-  pub user: Pubkey
+pub struct MerchantData {
+    pub transaction_count: u64,
+}
+
+#[account]
+pub struct Transaction {
+    pub merchant: Pubkey,
+    pub product_name: String,
+    pub quantity: u64,
+    pub price: u64,
+    pub total_price: u64,
+    pub sol_paid: u64,
+    pub timestamp: i64,
+    pub transaction_number: u64,
+}
+
+impl Transaction {
+    const LEN: usize = 8 + // discriminator
+        32 + // merchant pubkey
+        4 + 50 + // product_name (max 50 chars)
+        8 + // quantity
+        8 + // price
+        8 + // total_price
+        8 + // sol_paid
+        8 + // timestamp
+        8; // transaction_number
 }
