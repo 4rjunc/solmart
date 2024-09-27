@@ -26,7 +26,8 @@ export default function RootLayout({
         <ReactQueryProvider>
           <ClusterProvider>
             <SolanaProvider>
-              <UiLayout links={links}>{children}</UiLayout>
+              {/* <UiLayout >{children}</UiLayout> */}
+              {children}
             </SolanaProvider>
           </ClusterProvider>
         </ReactQueryProvider>

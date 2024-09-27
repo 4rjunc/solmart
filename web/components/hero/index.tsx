@@ -15,7 +15,6 @@ export default function Hero() {
         blockchain technology.
       </p>
       <DefaultModal
-       
         modalTrigger={
           <Button className="rounded-full" size={'lg'}>
             Get Started
