@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { WalletButton } from '../../solana/solana-provider';
 import { Wallet } from 'lucide-react';
 import { STYLED_BUTTON } from '@/constant/style';
 import React, { useState } from 'react';
@@ -50,6 +51,7 @@ export default function SignUp() {
             </div>
             <Button className={`${STYLED_BUTTON} w-full`} type="button">
               <Wallet className="mr-2 h-4 w-4" />
+              <WalletButton className="z-50" />
               Connect Wallet
             </Button>
           </form>

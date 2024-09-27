@@ -1,5 +1,7 @@
 # SOLMART
 
+PRESENTION : [HERE](https://www.canva.com/design/DAGR7QGZYBc/qlJT4bTUsQKsKTu8y0k6Bw/view?utm_content=DAGR7QGZYBc&utm_campaign=designshare&utm_medium=link&utm_source=editor)
+
 graph TD
 A[Customer selects items] --> B[Cashier totals purchase]
 B --> C[System converts fiat to SOL/USDC]
