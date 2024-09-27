@@ -2,12 +2,12 @@
  * Program IDL in camelCase format in order to be used in JS/TS.
  *
  * Note that this is only a type helper and is not the actual IDL. The original
- * IDL can be found at `target/idl/ssf_demo_day_project.json`.
+ * IDL can be found at `target/idl/solmart.json`.
  */
-export type SsfDemoDayProject = {
+export type Solmart = {
   "address": "HL4kgSUiSG7CaC7GojG1UGt7zA6MeSqoBcXH9bjvDpu1",
   "metadata": {
-    "name": "ssfDemoDayProject",
+    "name": "solmart",
     "version": "0.1.0",
     "spec": "0.1.0",
     "description": "Created with Anchor"

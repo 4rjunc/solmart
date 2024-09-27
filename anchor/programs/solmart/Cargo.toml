@@ -1,12 +1,12 @@
 [package]
-name = "ssf-demo-day-project"
+name = "solmart"
 version = "0.1.0"
 description = "Created with Anchor"
 edition = "2021"
 
 [lib]
 crate-type = ["cdylib", "lib"]
-name = "ssf_demo_day_project"
+name = "solmart"
 
 [features]
 no-entrypoint = []

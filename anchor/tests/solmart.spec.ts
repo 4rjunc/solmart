@@ -1,7 +1,7 @@
 import * as anchor from '@coral-xyz/anchor';
 import { Program, BN } from '@coral-xyz/anchor';
 import { Keypair, PublicKey } from '@solana/web3.js';
-import { SsfDemoDayProject } from '../target/types/ssf_demo_day_project';
+import { Solmart } from '../target/types/solmart';
 import { before } from 'node:test';
 
 describe('ssf-demo-day-project', () => {
@@ -12,15 +12,14 @@ describe('ssf-demo-day-project', () => {
   const merchant1: anchor.web3.Signer = anchor.web3.Keypair.generate();
   const merchant2: anchor.web3.Signer = anchor.web3.Keypair.generate();
 
-  const program = anchor.workspace
-    .SsfDemoDayProject as Program<SsfDemoDayProject>;
+  const program = anchor.workspace.Solmart as Program<Solmart>;
 
-  const ssfDemoDayProjectKeypair = Keypair.generate();
+  const solmartKeypair = Keypair.generate();
 
   let merchant1DataPda: PublicKey;
   let merchant1DataBump: number;
 
-  it('Airdrop', async () => {
+  before(async () => {
     try {
       const sig = await provider.connection.requestAirdrop(
         merchant1.publicKey,
