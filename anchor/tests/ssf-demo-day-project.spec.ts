@@ -20,8 +20,21 @@ describe('ssf-demo-day-project', () => {
   let merchant1DataPda: PublicKey;
   let merchant1DataBump: number;
 
-  before(async () => {
-    await provider.connection.requestAirdrop(merchant1.publicKey, 1000000000);
+  it('Airdrop', async () => {
+    try {
+      const sig = await provider.connection.requestAirdrop(
+        merchant1.publicKey,
+        100000000
+      );
+      await provider.connection.confirmTransaction(sig);
+    } catch (err) {
+      console.error('Airdrop failed:', err);
+    }
+    console.log('RPC Endpoint:', provider.connection.rpcEndpoint);
+    console.log('Merchant 1 Public Key:', merchant1.publicKey.toBase58());
+    const balance = await provider.connection.getBalance(merchant1.publicKey);
+    console.log(`Merchant 1 Balance: ${balance}`);
+
     await provider.connection.requestAirdrop(merchant2.publicKey, 1000000000);
 
     [merchant1DataPda, merchant1DataBump] =
