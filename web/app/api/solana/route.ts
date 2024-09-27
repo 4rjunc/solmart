@@ -2,7 +2,7 @@ import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 import { encodeURL, findReference, validateTransfer } from "@solana/pay";
 import BigNumber from "bignumber.js";
 
-const walletAddress = process.env.NEXT_PUBLIC_SOL_WALLET;
+const walletAddress ='FWh9HUuJD73EiW93CZvQYU2Fg9GFCYToUFir6kCDreGy';
 if (!walletAddress) {
   throw new Error("Missing Wallet Address");
 }
