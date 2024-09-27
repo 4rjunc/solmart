@@ -1,2 +1,1 @@
-export const STYLED_BUTTON = ` w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-all
-     duration-300 ease-in-out transform hover:scale-105`
+export const STYLED_BUTTON ='bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105 text-white'
