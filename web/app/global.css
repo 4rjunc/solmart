@@ -17,6 +17,7 @@ body {
 .wallet-adapter-button {
   font-family: inherit !important;
 }
+
 @layer base {
   :root {
     --background: 0 0% 100%;
