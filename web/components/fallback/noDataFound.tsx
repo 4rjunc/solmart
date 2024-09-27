@@ -24,8 +24,7 @@ export default function MartNoItemsFound({
       {actionLabel && onAction && (
         <Button
           onClick={onAction}
-          variant="outline"
-          className="bg-white hover:bg-gray-100"
+         
         >
           {actionLabel}
         </Button>
