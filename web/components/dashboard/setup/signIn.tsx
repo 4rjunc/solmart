@@ -20,7 +20,7 @@ export default function SignIn() {
             Connect your wallet to access your store and continue managing your
             business.
           </p>
-          <Button className={` ${STYLED_BUTTON}`} type="button">
+          <Button className={`w-full ${STYLED_BUTTON}`} type="button">
             <Wallet className="mr-2 h-5 w-5" />
             Connect Wallet
           </Button>
