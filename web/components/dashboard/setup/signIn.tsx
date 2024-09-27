@@ -2,8 +2,22 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { STYLED_BUTTON } from '@/constant/style';
 import { Wallet } from 'lucide-react';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { useWalletModal } from '@solana/wallet-adapter-react-ui';
+import Link from 'next/link';
 
 export default function SignIn() {
+  const { publicKey, disconnect } = useWallet();
+  const { setVisible } = useWalletModal();
+
+  const handleWalletAction = () => {
+    if (publicKey) {
+      disconnect();
+    } else {
+      setVisible(true);
+    }
+  };
+
   return (
     <div className="flex items-center justify-center p-4">
       <Card className="w-full ">
@@ -20,10 +34,20 @@ export default function SignIn() {
             Connect your wallet to access your store and continue managing your
             business.
           </p>
-          <Button className={`w-full ${STYLED_BUTTON}`} type="button">
-            <Wallet className="mr-2 h-5 w-5" />
-            Connect Wallet
-          </Button>
+          {publicKey ? (
+            <Button className={STYLED_BUTTON} size={'lg'}>
+              <Link href="/dashboard">Go To Dashboard </Link>
+            </Button>
+          ) : (
+            <Button
+              className={`w-full ${STYLED_BUTTON}`}
+              type="button"
+              onClick={handleWalletAction}
+            >
+              <Wallet className="mr-2 h-5 w-5" />
+              Connect Wallet
+            </Button>
+          )}
         </CardContent>
       </Card>
     </div>
