@@ -84,7 +84,7 @@ export function AddProduct() {
             )}
           />
 
-          <Button type="submit">Submit</Button>
+          <Button type="submit" className='w-full'>Add Product</Button>
         </form>
       </Form>
     </>
