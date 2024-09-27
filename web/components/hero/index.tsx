@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import DefaultModal from '../layout/modal';
 import WelcomePopup from '../dashboard/setup';
+import { STYLED_BUTTON } from '@/constant/style';
 
 export default function Hero() {
   return (
@@ -16,7 +17,7 @@ export default function Hero() {
       </p>
       <DefaultModal
         modalTrigger={
-          <Button className="rounded-full" size={'lg'}>
+          <Button className={STYLED_BUTTON} size={'lg'}>
             Get Started
           </Button>
         }

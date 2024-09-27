@@ -12,6 +12,7 @@ import RecentTransactions from '@/components/dashboard/transactions';
 import Overview from '@/components/dashboard/stats/overview';
 import DefaultModal from '@/components/layout/modal';
 import { AddProduct } from '@/components/dashboard/products/addProduct';
+import { STYLED_BUTTON } from '@/constant/style';
 
 export default function DarkDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
@@ -51,7 +52,7 @@ export default function DarkDashboard() {
           <h1 className="text-4xl font-bold">Dashboard</h1>
           <div className="flex items-center space-x-4">
             <DefaultModal
-              modalTrigger={<Button className="w-full">Add New Product</Button>}
+              modalTrigger={<Button className={`w-full ${STYLED_BUTTON}`}>Add New Product</Button>}
             >
               <AddProduct />
             </DefaultModal>
