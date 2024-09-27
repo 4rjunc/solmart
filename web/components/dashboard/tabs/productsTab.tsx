@@ -14,7 +14,7 @@ const ProductsTab = () => {
   return (
     <div>
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold">Dashboard</h1>
+        <h1 className="text-2xl font-bold">Product List</h1>
         <div className="flex items-center space-x-4">
           <DefaultModal
             modalTrigger={
@@ -26,26 +26,6 @@ const ProductsTab = () => {
             <AddProduct />
           </DefaultModal>
         </div>
-      </div>
-
-      <div>
-        <StatOverview />
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <Card className="" id="overview">
-          <CardHeader>
-            <CardTitle>Overview</CardTitle>
-          </CardHeader>
-          <Overview />
-        </Card>
-
-        <Card className="">
-          <CardHeader>
-            <CardTitle>Recent Sales</CardTitle>
-          </CardHeader>
-          <RecentTransactions />
-        </Card>
       </div>
     </div>
   );

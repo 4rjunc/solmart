@@ -1,12 +1,16 @@
 import React from 'react';
 
 interface StyledButtonProps {
-  children: React.ReactNode; 
-  onClick?: () => void; 
+  children: React.ReactNode;
+  onClick?: () => void;
   className?: string;
 }
 
-const StyledButton: React.FC<StyledButtonProps> = ({ children, onClick, className }) => {
+const StyledButton: React.FC<StyledButtonProps> = ({
+  children,
+  onClick,
+  className,
+}) => {
   return (
     <button
       onClick={onClick}
