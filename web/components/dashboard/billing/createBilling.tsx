@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -15,37 +15,13 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from '@/components/ui/select'; // Make sure to create or import a Select component
 import { STYLED_BUTTON } from '@/constant/style';
-
-const currencyOptions = [
-  { value: 'USD', label: 'US Dollar (USD)' },
-  { value: 'EUR', label: 'Euro (EUR)' },
-  { value: 'NGN', label: 'Nigerian Naira (NGN)' },
-  { value: 'GBP', label: 'British Pound (GBP)' },
-  { value: 'JPY', label: 'Japanese Yen (JPY)' },
-];
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'; // Import Dialog components
 
 const formSchema = z.object({
-  productName: z.string().min(1, {
-    message: 'Product Name is required.',
-  }),
-  productPrice: z.number().min(0.01, {
-    message: 'Product Price is required and must be greater than 0.',
-  }),
-  productQuantity: z.number().min(0.01, {
-    message: 'Product Quantiy is required and must be greater than 0.',
-  }),
-
-  //   currency: z.string().min(1, {
-  //     message: 'Currency selection is required.',
-  //   }),
+  productName: z.string().min(1, { message: 'Product Name is required.' }),
+  productPrice: z.string().min(1, { message: 'Product Price is required.' }),
+  productQuantity: z.string().min(1, { message: 'Product Quantity is required.' }),
 });
 
 export function CreateBilling() {
@@ -53,14 +29,54 @@ export function CreateBilling() {
     resolver: zodResolver(formSchema),
   });
 
-  const onSubmit = (data: {
-    productName: string;
-    productPrice: number;
-    product: FileList;
-    currency: string;
-  }) => {
-    console.log('Form Data:', data);
-    form.reset();
+  const [solanaPayUrl, setSolanaPayUrl] = useState<string | null>(null);
+  const [isDialogOpen, setDialogOpen] = useState(false);
+  const [isLoading, setLoading] = useState(false); 
+  const [errorMessage, setErrorMessage] = useState<string | null>(null); // New error state
+
+  const onSubmit = async (data: { productName: string; productPrice: string; productQuantity: string }) => {
+    const price = parseFloat(data.productPrice);
+    const quantity = parseFloat(data.productQuantity);
+
+    console.log('Form Data:', { ...data, productPrice: price, productQuantity: quantity });
+
+    setLoading(true); 
+    setErrorMessage(null); 
+
+    try {
+      const response = await fetch('/api/solana', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          productName: data.productName,
+          productPrice: price,
+          productQuantity: quantity,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create Solana Pay request');
+      }
+
+      const result = await response.json();
+      const { url } = result;
+
+      setSolanaPayUrl(url);
+      setDialogOpen(true);
+      form.reset();
+    } catch (error) {
+      setErrorMessage(error.message || 'An unexpected error occurred');
+      console.error('Error creating Solana Pay request:', error);
+    } finally {
+      setLoading(false); // Reset loading state regardless of success or failure
+    }
+  };
+
+  const closeDialog = () => {
+    setDialogOpen(false);
+    setSolanaPayUrl(null);
   };
 
   return (
@@ -107,7 +123,7 @@ export function CreateBilling() {
             name="productQuantity"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Product Price</FormLabel>
+                <FormLabel>Product Quantity</FormLabel>
                 <FormControl>
                   <Input
                     type="number"
@@ -120,11 +136,29 @@ export function CreateBilling() {
             )}
           />
 
-          <Button type="submit" className={`w-full ${STYLED_BUTTON}`}>
-            Create Bill
+          <Button type="submit" className={`w-full ${STYLED_BUTTON}`} disabled={isLoading}>
+            {isLoading ? 'Creating Billing...' : 'Create Bill'}
           </Button>
+          {errorMessage && <p className="text-red-500 text-center mt-2">{errorMessage}</p>} {/* Display error message */}
         </form>
       </Form>
+
+      <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Solana Pay URL</DialogTitle>
+            <DialogDescription>
+              Here is the payment URL generated for your transaction:
+            </DialogDescription>
+          </DialogHeader>
+          <div className="p-4">
+            {solanaPayUrl && <p className="break-words">{solanaPayUrl}</p>}
+            <Button onClick={closeDialog} className="mt-4">
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
