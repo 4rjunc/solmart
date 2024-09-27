@@ -15,6 +15,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { STYLED_BUTTON } from '@/constant/style';
 
 const formSchema = z.object({
   productName: z.string().min(1, {
@@ -84,7 +85,7 @@ export function AddProduct() {
             )}
           />
 
-          <Button type="submit" className='w-full'>Add Product</Button>
+          <Button type="submit" className={`w-full ${STYLED_BUTTON}`}>Add Product</Button>
         </form>
       </Form>
     </>
