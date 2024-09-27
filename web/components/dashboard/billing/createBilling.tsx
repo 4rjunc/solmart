@@ -16,7 +16,9 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { STYLED_BUTTON } from '@/constant/style';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'; // Import Dialog components
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'; 
+import { createQR } from '@solana/pay';
+import axios from 'axios';
 
 const formSchema = z.object({
   productName: z.string().min(1, { message: 'Product Name is required.' }),
@@ -29,14 +31,16 @@ export function CreateBilling() {
     resolver: zodResolver(formSchema),
   });
 
-  const [solanaPayUrl, setSolanaPayUrl] = useState<string | null>(null);
+  const [qrCode, setQrCode] = useState<string | null>(null);
   const [isDialogOpen, setDialogOpen] = useState(false);
-  const [isLoading, setLoading] = useState(false); 
-  const [errorMessage, setErrorMessage] = useState<string | null>(null); // New error state
+  const [isLoading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [reference, setReference] = useState<string | null>(null); 
 
   const onSubmit = async (data: { productName: string; productPrice: string; productQuantity: string }) => {
     const price = parseFloat(data.productPrice);
     const quantity = parseFloat(data.productQuantity);
+    const currencyAmount = price * quantity; 
 
     console.log('Form Data:', { ...data, productPrice: price, productQuantity: quantity });
 
@@ -44,39 +48,43 @@ export function CreateBilling() {
     setErrorMessage(null); 
 
     try {
-      const response = await fetch('/api/solana', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          productName: data.productName,
-          productPrice: price,
-          productQuantity: quantity,
-        }),
-      });
+      const res = await axios.post(
+        '/api/solana',
+        { currencyAmount },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
-      if (!response.ok) {
-        throw new Error('Failed to create Solana Pay request');
-      }
+      const { url, ref } = res.data;
+      const qr = createQR(url);
+      const qrBlob = await qr.getRawData('png');
+      if (!qrBlob) return;
 
-      const result = await response.json();
-      const { url } = result;
-
-      setSolanaPayUrl(url);
-      setDialogOpen(true);
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (typeof event.target?.result === 'string') {
+          setQrCode(event.target.result);
+        }
+      };
+      reader.readAsDataURL(qrBlob);
+      setReference(ref);
+      console.log('Reference:', reference); 
+      setDialogOpen(true); 
       form.reset();
     } catch (error) {
       setErrorMessage(error.message || 'An unexpected error occurred');
-      console.error('Error creating Solana Pay request:', error);
+      console.error('Error generating QR code:', error);
     } finally {
-      setLoading(false); // Reset loading state regardless of success or failure
+      setLoading(false);
     }
   };
 
   const closeDialog = () => {
     setDialogOpen(false);
-    setSolanaPayUrl(null);
+    setQrCode(null);
   };
 
   return (
@@ -139,7 +147,7 @@ export function CreateBilling() {
           <Button type="submit" className={`w-full ${STYLED_BUTTON}`} disabled={isLoading}>
             {isLoading ? 'Creating Billing...' : 'Create Bill'}
           </Button>
-          {errorMessage && <p className="text-red-500 text-center mt-2">{errorMessage}</p>} {/* Display error message */}
+          {errorMessage && <p className="text-red-500 text-center mt-2">{errorMessage}</p>}
         </form>
       </Form>
 
@@ -148,11 +156,11 @@ export function CreateBilling() {
           <DialogHeader>
             <DialogTitle>Solana Pay URL</DialogTitle>
             <DialogDescription>
-              Here is the payment URL generated for your transaction:
+              Here is the payment QR code generated for your transaction:
             </DialogDescription>
           </DialogHeader>
           <div className="p-4">
-            {solanaPayUrl && <p className="break-words">{solanaPayUrl}</p>}
+            {qrCode && <img src={qrCode} alt="QR Code" className="w-full h-auto" />} 
             <Button onClick={closeDialog} className="mt-4">
               Close
             </Button>

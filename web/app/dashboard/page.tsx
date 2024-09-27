@@ -1,6 +1,5 @@
 'use client';
 import { useState } from 'react';
-
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import DefaultTab from '@/components/dashboard/tabs/defaultTab';
