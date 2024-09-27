@@ -15,7 +15,13 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'; // Make sure to create or import a Select component
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select'; // Make sure to create or import a Select component
 import { STYLED_BUTTON } from '@/constant/style';
 
 const currencyOptions = [
@@ -33,10 +39,13 @@ const formSchema = z.object({
   productPrice: z.number().min(0.01, {
     message: 'Product Price is required and must be greater than 0.',
   }),
-
-  currency: z.string().min(1, {
-    message: 'Currency selection is required.',
+  productQuantity: z.number().min(0.01, {
+    message: 'Product Quantiy is required and must be greater than 0.',
   }),
+
+  //   currency: z.string().min(1, {
+  //     message: 'Currency selection is required.',
+  //   }),
 });
 
 export function CreateBilling() {
@@ -82,7 +91,11 @@ export function CreateBilling() {
               <FormItem>
                 <FormLabel>Product Price</FormLabel>
                 <FormControl>
-                  <Input type="number" placeholder="Enter product price" {...field} />
+                  <Input
+                    type="number"
+                    placeholder="Enter product price"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -91,33 +104,24 @@ export function CreateBilling() {
 
           <FormField
             control={form.control}
-            name="currency"
+            name="productQuantity"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Select Currency</FormLabel>
+                <FormLabel>Product Price</FormLabel>
                 <FormControl>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select currency" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {currencyOptions.map((currency) => (
-                        <SelectItem key={currency.value} value={currency.value}>
-                          {currency.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Input
+                    type="number"
+                    placeholder="Enter product quantity"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
 
-         
-
           <Button type="submit" className={`w-full ${STYLED_BUTTON}`}>
-            Add Product
+            Create Bill
           </Button>
         </form>
       </Form>

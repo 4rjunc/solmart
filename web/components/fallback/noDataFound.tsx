@@ -22,12 +22,7 @@ export default function MartNoItemsFound({
       <h2 className="text-2xl font-bold text-gray-900 mb-2">{title}</h2>
       <p className="text-gray-500 mb-6 max-w-md">{description}</p>
       {actionLabel && onAction && (
-        <Button
-          onClick={onAction}
-         
-        >
-          {actionLabel}
-        </Button>
+        <Button onClick={onAction}>{actionLabel}</Button>
       )}
     </div>
   );
