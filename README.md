@@ -2,20 +2,22 @@
 
 PRESENTION : [HERE](https://www.canva.com/design/DAGR7QGZYBc/qlJT4bTUsQKsKTu8y0k6Bw/view?utm_content=DAGR7QGZYBc&utm_campaign=designshare&utm_medium=link&utm_source=editor)
 
+```mermaid
 graph TD
-A[Customer selects items] --> B[Cashier totals purchase]
-B --> C[System converts fiat to SOL/USDC]
-C --> D[QR code displayed on screen]
-D --> E[Customer scans QR with wallet app]
-E --> F{Sufficient funds?}
-F -->|Yes| G[Customer confirms payment]
-F -->|No| H[Error: Insufficient funds]
-H --> E
-G --> I[Transaction processed on Solana network]
-I --> J[Voice confirmation of payment]
-J --> K[Merchant dashboard updated]
-K --> L[Receipt generated]
-L --> M[Transaction complete]
+    A[Customer selects items] --> B[Cashier totals purchase]
+    B --> C[System converts fiat to SOL/USDC]
+    C --> D[QR code displayed on screen]
+    D --> E[Customer scans QR with wallet app]
+    E --> F{Sufficient funds?}
+    F -->|Yes| G[Customer confirms payment]
+    F -->|No| H[Error: Insufficient funds]
+    H --> E
+    G --> I[Transaction processed on Solana network]
+    I --> J[Voice confirmation of payment]
+    J --> K[Merchant dashboard updated]
+    K --> L[Receipt generated]
+    L --> M[Transaction complete]
+```
 
 This project is generated with the [create-solana-dapp](https://github.com/solana-developers/create-solana-dapp) generator.
 

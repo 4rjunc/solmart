@@ -5,7 +5,7 @@ use anchor_lang::prelude::*;
 declare_id!("HL4kgSUiSG7CaC7GojG1UGt7zA6MeSqoBcXH9bjvDpu1");
 
 #[program]
-pub mod ssf_demo_day_project {
+pub mod solmart {
     use super::*;
 
     pub fn initialize_merchant(ctx: Context<InitializeMerchant>) -> Result<()> {
