@@ -20,7 +20,7 @@ export function UiLayout({
   links,
 }: {
   children: ReactNode;
-  links: { label: string; path: string }[];
+  links?: { label: string; path: string }[];
 }) {
   const pathname = usePathname();
 
@@ -42,7 +42,7 @@ export function UiLayout({
       <ClusterChecker>
         <AccountChecker />
       </ClusterChecker>
-      <div className="flex-grow mx-4 lg:mx-auto">
+      <div className="flex-grow mx-4 ">
         <Suspense
           fallback={
             <div className="text-center my-32">
