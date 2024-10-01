@@ -46,7 +46,7 @@ describe('solmart', () => {
   it('Initialize merchant1', async () => {
     try {
       await program.methods
-        .initializeMerchant()
+        .initializeMerchant('AppleHub', 'USD')
         .accounts({
           merchantData: merchant1DataPda,
           authority: merchant1.publicKey,

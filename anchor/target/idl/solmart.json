@@ -117,7 +117,16 @@
           "address": "11111111111111111111111111111111"
         }
       ],
-      "args": []
+      "args": [
+        {
+          "name": "shop_name",
+          "type": "string"
+        },
+        {
+          "name": "currency",
+          "type": "string"
+        }
+      ]
     }
   ],
   "accounts": [
@@ -160,6 +169,14 @@
           {
             "name": "authority",
             "type": "pubkey"
+          },
+          {
+            "name": "shop_name",
+            "type": "string"
+          },
+          {
+            "name": "currency",
+            "type": "string"
           },
           {
             "name": "invoice_count",

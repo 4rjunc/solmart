@@ -8,9 +8,11 @@ declare_id!("J89KZSRu7YYpN4W54544g4fKRoiSWpSP6bdY7VkuLmEB");
 pub mod solmart {
     use super::*;
 
-    pub fn initialize_merchant(ctx: Context<InitializeMerchant>) -> Result<()> {
+    pub fn initialize_merchant(ctx: Context<InitializeMerchant>, shop_name: String, currency: String) -> Result<()> {
         let merchant_data = &mut ctx.accounts.merchant_data;
         merchant_data.authority = ctx.accounts.authority.key();
+        merchant_data.shop_name = shop_name;
+        merchant_data.currency = currency;
         merchant_data.invoice_count = 0;
         Ok(())
     }
@@ -47,11 +49,12 @@ pub mod solmart {
 }
 
 #[derive(Accounts)]
+#[instruction(shop_name: String, currency: String)]
 pub struct InitializeMerchant<'info> {
     #[account(
         init,
         payer = authority,
-        space = 8 + 32+ 4 + 32, // discriminator + transaction_count
+        space = 8 + 32 + 4 + shop_name.len() + 4 + currency.len() + 4 + 32, // discriminator + pubkey + shop_name + currency + invoice_count + extra space
         seeds = [b"merchant", authority.key().as_ref()],
         bump
     )]
@@ -95,6 +98,8 @@ pub struct ResizeMerchantAccount<'info>{
 #[account]
 pub struct MerchantData {
     pub authority: Pubkey,
+    pub shop_name: String,
+    pub currency: String,
     pub invoice_count: u32,
     pub invoice_links: Vec<InvoiceLink>,
 }

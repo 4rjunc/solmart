@@ -123,7 +123,16 @@ export type Solmart = {
           "address": "11111111111111111111111111111111"
         }
       ],
-      "args": []
+      "args": [
+        {
+          "name": "shopName",
+          "type": "string"
+        },
+        {
+          "name": "currency",
+          "type": "string"
+        }
+      ]
     }
   ],
   "accounts": [
@@ -166,6 +175,14 @@ export type Solmart = {
           {
             "name": "authority",
             "type": "pubkey"
+          },
+          {
+            "name": "shopName",
+            "type": "string"
+          },
+          {
+            "name": "currency",
+            "type": "string"
           },
           {
             "name": "invoiceCount",
