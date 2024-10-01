@@ -2,7 +2,7 @@
 
 use anchor_lang::prelude::*;
 
-declare_id!("HL4kgSUiSG7CaC7GojG1UGt7zA6MeSqoBcXH9bjvDpu1");
+declare_id!("J89KZSRu7YYpN4W54544g4fKRoiSWpSP6bdY7VkuLmEB");
 
 #[program]
 pub mod solmart {

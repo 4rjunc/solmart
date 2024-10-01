@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/solmart.json`.
  */
 export type Solmart = {
-  "address": "HL4kgSUiSG7CaC7GojG1UGt7zA6MeSqoBcXH9bjvDpu1",
+  "address": "J89KZSRu7YYpN4W54544g4fKRoiSWpSP6bdY7VkuLmEB",
   "metadata": {
     "name": "solmart",
     "version": "0.1.0",

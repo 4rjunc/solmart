@@ -4,7 +4,7 @@ import { Keypair, PublicKey } from '@solana/web3.js';
 import { Solmart } from '../target/types/solmart';
 import { before } from 'node:test';
 
-describe('ssf-demo-day-project', () => {
+describe('solmart', () => {
   // Configure the client to use the local cluster.
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
@@ -19,7 +19,7 @@ describe('ssf-demo-day-project', () => {
   let merchant1DataPda: PublicKey;
   let merchant1DataBump: number;
 
-  before(async () => {
+  it('setup acc.', async () => {
     try {
       const sig = await provider.connection.requestAirdrop(
         merchant1.publicKey,
@@ -49,16 +49,17 @@ describe('ssf-demo-day-project', () => {
         .initializeMerchant()
         .accounts({
           merchantData: merchant1DataPda,
-          merchant: merchant1.publicKey,
+          authority: merchant1.publicKey,
           systemProgram: anchor.web3.SystemProgram.programId,
         })
         .signers([merchant1])
         .rpc();
 
-      const merchantData = await program.account.merchantData.fetch(
+      const merchant1Data = await program.account.merchantData.fetch(
         merchant1DataPda
       );
-      expect(merchantData.transactionCount.toNumber()).toEqual(0);
+      console.log('merchant1Data', merchant1Data);
+      expect(merchant1Data.invoiceCount).toEqual(0);
     } catch (error) {
       console.error('Error in Initialize merchant1:', error);
       throw error;
@@ -68,48 +69,43 @@ describe('ssf-demo-day-project', () => {
   it('merchant1: Adding Transaction', async () => {
     try {
       const [transactionPda] = await PublicKey.findProgramAddress(
-        [
-          Buffer.from('transaction'),
-          merchant1.publicKey.toBuffer(),
-          new BN(0).toArrayLike(Buffer, 'le', 8),
-        ],
+        [Buffer.from('merchant'), merchant1.publicKey.toBuffer()],
         program.programId
       );
 
       await program.methods
-        .addTransaction(
-          'Product 1',
-          new BN(2),
-          new BN(1000000),
-          new BN(2000000),
-          new BN(2000000)
+        .addInvoiceLink(
+          'QmYwAPJzv5CZsnAzt8auVZRn5TqFccxPC6vUnchA8wsZys',
+          '0x5d5e3fb709d93e3ef56a452287e0b71591dc6a953e7a2eeb83669a5a752a0bb5'
         )
         .accounts({
-          transaction: transactionPda,
           merchantData: merchant1DataPda,
-          merchant: merchant1.publicKey,
+          authority: merchant1.publicKey,
           systemProgram: anchor.web3.SystemProgram.programId,
         })
         .signers([merchant1])
         .rpc();
 
-      const transactionData = await program.account.transaction.fetch(
+      const invoiceData = await program.account.merchantData.fetch(
         transactionPda
       );
-      expect(transactionData.merchant.toString()).toEqual(
+      expect(invoiceData.authority.toString()).toEqual(
         merchant1.publicKey.toString()
       );
-      expect(transactionData.productName).toEqual('Product 1');
-      expect(transactionData.quantity.toNumber()).toEqual(2);
-      expect(transactionData.price.toNumber()).toEqual(1000000);
-      expect(transactionData.totalPrice.toNumber()).toEqual(2000000);
-      expect(transactionData.solPaid.toNumber()).toEqual(2000000);
-      expect(transactionData.transactionNumber.toNumber()).toEqual(0);
 
-      const merchantData = await program.account.merchantData.fetch(
-        merchant1DataPda
+      console.log('merchant1Data Adding', invoiceData);
+      expect(invoiceData.invoiceCount).toEqual(1);
+
+      // Access the first invoice in the invoiceLinks array
+      const firstInvoice = invoiceData.invoiceLinks[0];
+
+      // Ensure the cidHash and txSignature match
+      expect(firstInvoice.cidHash).toEqual(
+        'QmYwAPJzv5CZsnAzt8auVZRn5TqFccxPC6vUnchA8wsZys'
       );
-      expect(merchantData.transactionCount.toNumber()).toEqual(1);
+      expect(firstInvoice.txSignature).toEqual(
+        '0x5d5e3fb709d93e3ef56a452287e0b71591dc6a953e7a2eeb83669a5a752a0bb5'
+      );
     } catch (error) {
       console.error('Error in Adding Transaction:', error);
       throw error;
