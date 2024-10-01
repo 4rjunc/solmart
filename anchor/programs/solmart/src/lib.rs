@@ -10,97 +10,99 @@ pub mod solmart {
 
     pub fn initialize_merchant(ctx: Context<InitializeMerchant>) -> Result<()> {
         let merchant_data = &mut ctx.accounts.merchant_data;
-        merchant_data.transaction_count = 0;
+        merchant_data.authority = ctx.accounts.authority.key();
+        merchant_data.invoice_count = 0;
         Ok(())
     }
 
-    pub fn add_transaction(
-        ctx: Context<AddTransaction>,
-        product_name: String,
-        quantity: u64,
-        price: u64,
-        total_price: u64,
-        sol_paid: u64,
+    pub fn add_invoice_link(
+        ctx: Context<AddInvoiceLink>,
+        cid_hash: String,
+        tx_signature: String,
     ) -> Result<()> {
-        let transaction = &mut ctx.accounts.transaction;
         let merchant_data = &mut ctx.accounts.merchant_data;
 
-        transaction.merchant = ctx.accounts.merchant.key();
-        transaction.product_name = product_name;
-        transaction.quantity = quantity;
-        transaction.price = price;
-        transaction.total_price = total_price;
-        transaction.sol_paid = sol_paid;
-        transaction.timestamp = Clock::get()?.unix_timestamp;
-        transaction.transaction_number = merchant_data.transaction_count;
+        merchant_data.invoice_links.push(InvoiceLink{
+            cid_hash,
+            tx_signature,
+        });
 
-        merchant_data.transaction_count += 1;
-
+        merchant_data.invoice_count += 1;
         Ok(())
     }
+
+    // pub fn resize_merchant_account(ctx: Context<ResizeMerchantAccount>, new_space: u64) -> Result<()> {
+    //     let account_info = ctx.accounts.merchant_data.to_account_info();
+    //     let new_minimum_balance = Rent::get()?.minimum_balance(new_space as usize);
+    //     let lamports_diff = new_minimum_balance.saturating_sub(account_info.lamports());
+    //
+    //     if lamports_diff > 0 {
+    //         transfer(ctx.accounts.authority.to_account_info(), account_info, lamports_diff)?;
+    //     }
+    //
+    //     account_info.realloc(new_space as usize, false)?;
+    //
+    //     Ok(())
+    // }
 }
 
 #[derive(Accounts)]
 pub struct InitializeMerchant<'info> {
     #[account(
         init,
-        payer = merchant,
-        space = 8 + 8, // discriminator + transaction_count
-        seeds = [b"merchant", merchant.key().as_ref()],
+        payer = authority,
+        space = 8 + 32+ 4 + 32, // discriminator + transaction_count
+        seeds = [b"merchant", authority.key().as_ref()],
         bump
     )]
     pub merchant_data: Account<'info, MerchantData>,
     #[account(mut)]
-    pub merchant: Signer<'info>,
+    pub authority: Signer<'info>,
     pub system_program: Program<'info, System>,
 }
 
 #[derive(Accounts)]
-pub struct AddTransaction<'info> {
-    #[account(
-        init,
-        payer = merchant,
-        space = Transaction::LEN,
-        seeds = [b"transaction", merchant.key().as_ref(), &merchant_data.transaction_count.to_le_bytes()],
-        bump
-    )]
-    pub transaction: Account<'info, Transaction>,
+pub struct AddInvoiceLink<'info> {
     #[account(
         mut,
-        seeds = [b"merchant", merchant.key().as_ref()],
-        bump
+        seeds = [b"merchant", authority.key().as_ref()],
+        bump,
+        has_one = authority,
+        realloc = merchant_data.to_account_info().data_len() + 128,
+        realloc::payer = authority,
+        realloc::zero = false
     )]
     pub merchant_data: Account<'info, MerchantData>,
     #[account(mut)]
-    pub merchant: Signer<'info>,
+    pub authority: Signer<'info>,
     pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+pub struct ResizeMerchantAccount<'info>{
+    #[account(
+        mut,
+        seeds = [b"merchant", authority.key().as_ref()],
+        bump,
+        has_one = authority
+    )]
+    pub merchant_data: Account<'info, MerchantData>,
+    #[account(mut)]
+    pub authority: Signer<'info>,
+    pub system_program: Program<'info, System>
 }
 
 #[account]
 pub struct MerchantData {
-    pub transaction_count: u64,
+    pub authority: Pubkey,
+    pub invoice_count: u32,
+    pub invoice_links: Vec<InvoiceLink>,
 }
 
-#[account]
-pub struct Transaction {
-    pub merchant: Pubkey,
-    pub product_name: String,
-    pub quantity: u64,
-    pub price: u64,
-    pub total_price: u64,
-    pub sol_paid: u64,
-    pub timestamp: i64,
-    pub transaction_number: u64,
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, Default)]
+pub struct InvoiceLink{
+    pub cid_hash: String,
+    pub tx_signature: String
 }
 
-impl Transaction {
-    const LEN: usize = 8 + // discriminator
-        32 + // merchant pubkey
-        4 + 50 + // product_name (max 50 chars)
-        8 + // quantity
-        8 + // price
-        8 + // total_price
-        8 + // sol_paid
-        8 + // timestamp
-        8; // transaction_number
-}
+

@@ -8,51 +8,18 @@
   },
   "instructions": [
     {
-      "name": "add_transaction",
+      "name": "add_invoice_link",
       "discriminator": [
-        48,
-        96,
-        174,
-        112,
-        81,
-        30,
-        239,
-        89
+        179,
+        150,
+        183,
+        161,
+        197,
+        100,
+        95,
+        126
       ],
       "accounts": [
-        {
-          "name": "transaction",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  116,
-                  114,
-                  97,
-                  110,
-                  115,
-                  97,
-                  99,
-                  116,
-                  105,
-                  111,
-                  110
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "merchant"
-              },
-              {
-                "kind": "account",
-                "path": "merchant_data.transaction_count",
-                "account": "MerchantData"
-              }
-            ]
-          }
-        },
         {
           "name": "merchant_data",
           "writable": true,
@@ -73,15 +40,18 @@
               },
               {
                 "kind": "account",
-                "path": "merchant"
+                "path": "authority"
               }
             ]
           }
         },
         {
-          "name": "merchant",
+          "name": "authority",
           "writable": true,
-          "signer": true
+          "signer": true,
+          "relations": [
+            "merchant_data"
+          ]
         },
         {
           "name": "system_program",
@@ -90,24 +60,12 @@
       ],
       "args": [
         {
-          "name": "product_name",
+          "name": "cid_hash",
           "type": "string"
         },
         {
-          "name": "quantity",
-          "type": "u64"
-        },
-        {
-          "name": "price",
-          "type": "u64"
-        },
-        {
-          "name": "total_price",
-          "type": "u64"
-        },
-        {
-          "name": "sol_paid",
-          "type": "u64"
+          "name": "tx_signature",
+          "type": "string"
         }
       ]
     },
@@ -144,13 +102,13 @@
               },
               {
                 "kind": "account",
-                "path": "merchant"
+                "path": "authority"
               }
             ]
           }
         },
         {
-          "name": "merchant",
+          "name": "authority",
           "writable": true,
           "signer": true
         },
@@ -175,70 +133,47 @@
         231,
         149
       ]
-    },
-    {
-      "name": "Transaction",
-      "discriminator": [
-        11,
-        24,
-        174,
-        129,
-        203,
-        117,
-        242,
-        23
-      ]
     }
   ],
   "types": [
+    {
+      "name": "InvoiceLink",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "cid_hash",
+            "type": "string"
+          },
+          {
+            "name": "tx_signature",
+            "type": "string"
+          }
+        ]
+      }
+    },
     {
       "name": "MerchantData",
       "type": {
         "kind": "struct",
         "fields": [
           {
-            "name": "transaction_count",
-            "type": "u64"
-          }
-        ]
-      }
-    },
-    {
-      "name": "Transaction",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "merchant",
+            "name": "authority",
             "type": "pubkey"
           },
           {
-            "name": "product_name",
-            "type": "string"
+            "name": "invoice_count",
+            "type": "u32"
           },
           {
-            "name": "quantity",
-            "type": "u64"
-          },
-          {
-            "name": "price",
-            "type": "u64"
-          },
-          {
-            "name": "total_price",
-            "type": "u64"
-          },
-          {
-            "name": "sol_paid",
-            "type": "u64"
-          },
-          {
-            "name": "timestamp",
-            "type": "i64"
-          },
-          {
-            "name": "transaction_number",
-            "type": "u64"
+            "name": "invoice_links",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "InvoiceLink"
+                }
+              }
+            }
           }
         ]
       }

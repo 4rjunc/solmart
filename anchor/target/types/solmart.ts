@@ -14,51 +14,18 @@ export type Solmart = {
   },
   "instructions": [
     {
-      "name": "addTransaction",
+      "name": "addInvoiceLink",
       "discriminator": [
-        48,
-        96,
-        174,
-        112,
-        81,
-        30,
-        239,
-        89
+        179,
+        150,
+        183,
+        161,
+        197,
+        100,
+        95,
+        126
       ],
       "accounts": [
-        {
-          "name": "transaction",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  116,
-                  114,
-                  97,
-                  110,
-                  115,
-                  97,
-                  99,
-                  116,
-                  105,
-                  111,
-                  110
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "merchant"
-              },
-              {
-                "kind": "account",
-                "path": "merchant_data.transaction_count",
-                "account": "merchantData"
-              }
-            ]
-          }
-        },
         {
           "name": "merchantData",
           "writable": true,
@@ -79,15 +46,18 @@ export type Solmart = {
               },
               {
                 "kind": "account",
-                "path": "merchant"
+                "path": "authority"
               }
             ]
           }
         },
         {
-          "name": "merchant",
+          "name": "authority",
           "writable": true,
-          "signer": true
+          "signer": true,
+          "relations": [
+            "merchantData"
+          ]
         },
         {
           "name": "systemProgram",
@@ -96,24 +66,12 @@ export type Solmart = {
       ],
       "args": [
         {
-          "name": "productName",
+          "name": "cidHash",
           "type": "string"
         },
         {
-          "name": "quantity",
-          "type": "u64"
-        },
-        {
-          "name": "price",
-          "type": "u64"
-        },
-        {
-          "name": "totalPrice",
-          "type": "u64"
-        },
-        {
-          "name": "solPaid",
-          "type": "u64"
+          "name": "txSignature",
+          "type": "string"
         }
       ]
     },
@@ -150,13 +108,13 @@ export type Solmart = {
               },
               {
                 "kind": "account",
-                "path": "merchant"
+                "path": "authority"
               }
             ]
           }
         },
         {
-          "name": "merchant",
+          "name": "authority",
           "writable": true,
           "signer": true
         },
@@ -181,70 +139,47 @@ export type Solmart = {
         231,
         149
       ]
-    },
-    {
-      "name": "transaction",
-      "discriminator": [
-        11,
-        24,
-        174,
-        129,
-        203,
-        117,
-        242,
-        23
-      ]
     }
   ],
   "types": [
+    {
+      "name": "invoiceLink",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "cidHash",
+            "type": "string"
+          },
+          {
+            "name": "txSignature",
+            "type": "string"
+          }
+        ]
+      }
+    },
     {
       "name": "merchantData",
       "type": {
         "kind": "struct",
         "fields": [
           {
-            "name": "transactionCount",
-            "type": "u64"
-          }
-        ]
-      }
-    },
-    {
-      "name": "transaction",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "merchant",
+            "name": "authority",
             "type": "pubkey"
           },
           {
-            "name": "productName",
-            "type": "string"
+            "name": "invoiceCount",
+            "type": "u32"
           },
           {
-            "name": "quantity",
-            "type": "u64"
-          },
-          {
-            "name": "price",
-            "type": "u64"
-          },
-          {
-            "name": "totalPrice",
-            "type": "u64"
-          },
-          {
-            "name": "solPaid",
-            "type": "u64"
-          },
-          {
-            "name": "timestamp",
-            "type": "i64"
-          },
-          {
-            "name": "transactionNumber",
-            "type": "u64"
+            "name": "invoiceLinks",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "invoiceLink"
+                }
+              }
+            }
           }
         ]
       }
