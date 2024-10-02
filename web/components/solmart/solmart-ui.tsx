@@ -1,30 +1,58 @@
 'use client';
 
+import { useState } from 'react';
 import { Keypair, PublicKey } from '@solana/web3.js';
 import { useMemo } from 'react';
 import { ellipsify } from '../ui/ui-layout';
 import { ExplorerLink } from '../cluster/cluster-ui';
 import {
-  useSsfDemoDayProjectProgram,
-  useSsfDemoDayProjectProgramAccount,
-} from './ssf-demo-day-project-data-access';
+  useSolmartProgram,
+  useSolmartProgramAccount,
+} from './solmart-data-access';
 
-export function SsfDemoDayProjectCreate() {
-  const { initialize } = useSsfDemoDayProjectProgram();
+export function SolmartCreate() {
+  const { initialize } = useSolmartProgram();
+  const [merchantName, setMerchantName] = useState(''); // New field for merchant name
+  const [currency, setCurrency] = useState(''); // New field for currency
+
+  const handleCreate = async () => {
+    try {
+      const keypair = Keypair.generate();
+      await initialize.mutateAsync({ keypair, merchantName, currency });
+    } catch (error) {
+      console.error('Failed to create merchant:', error);
+    }
+  };
 
   return (
-    <button
-      className="btn btn-xs lg:btn-md btn-primary"
-      onClick={() => initialize.mutateAsync(Keypair.generate())}
-      disabled={initialize.isPending}
-    >
-      Create {initialize.isPending && '...'}
-    </button>
+    <div>
+      <input
+        type="text"
+        value={merchantName}
+        onChange={(e) => setMerchantName(e.target.value)}
+        placeholder="Merchant Name"
+        className="input input-bordered"
+      />
+      <input
+        type="text"
+        value={currency}
+        onChange={(e) => setCurrency(e.target.value)}
+        placeholder="Currency"
+        className="input input-bordered"
+      />
+      <button
+        className="btn btn-xs lg:btn-md btn-primary"
+        onClick={handleCreate}
+        disabled={initialize.isPending}
+      >
+        Create {initialize.isPending && '...'}
+      </button>
+    </div>
   );
 }
 
-export function SsfDemoDayProjectList() {
-  const { accounts, getProgramAccount } = useSsfDemoDayProjectProgram();
+export function SolmartList() {
+  const { accounts, getProgramAccount } = useSolmartProgram();
 
   if (getProgramAccount.isLoading) {
     return <span className="loading loading-spinner loading-lg"></span>;
@@ -46,7 +74,7 @@ export function SsfDemoDayProjectList() {
       ) : accounts.data?.length ? (
         <div className="grid md:grid-cols-2 gap-4">
           {accounts.data?.map((account) => (
-            <SsfDemoDayProjectCard
+            <SolmartCard
               key={account.publicKey.toString()}
               account={account.publicKey}
             />
@@ -62,14 +90,14 @@ export function SsfDemoDayProjectList() {
   );
 }
 
-function SsfDemoDayProjectCard({ account }: { account: PublicKey }) {
+function SolmartCard({ account }: { account: PublicKey }) {
   const {
     accountQuery,
     incrementMutation,
     setMutation,
     decrementMutation,
     closeMutation,
-  } = useSsfDemoDayProjectProgramAccount({ account });
+  } = useSolmartProgramAccount({ account });
 
   const count = useMemo(
     () => accountQuery.data?.count ?? 0,

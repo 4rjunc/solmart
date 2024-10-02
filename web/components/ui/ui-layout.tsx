@@ -35,6 +35,18 @@ export function UiLayout({
           <ul className="menu menu-horizontal px-1 space-x-2"></ul>
         </div>
         <div className="flex-none space-x-2">
+          <ul className="menu menu-horizontal px-1 space-x-2">
+            {links.map(({ label, path }) => (
+              <li key={path}>
+                <Link
+                  className={pathname.startsWith(path) ? 'active' : ''}
+                  href={path}
+                >
+                  {label}
+                </Link>
+              </li>
+            ))}
+          </ul>
           <WalletButton />
           <ClusterUiSelect />
         </div>

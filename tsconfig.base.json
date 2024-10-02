@@ -16,7 +16,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./web/*"],
-      "@ssf-demo-day-project/anchor": ["anchor/src/index.ts"]
+      "@solmart/anchor": ["anchor/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

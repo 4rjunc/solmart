@@ -6,7 +6,7 @@ seeds = false
 skip-lint = false
 
 [programs.localnet]
-ssf_demo_day_project = "HL4kgSUiSG7CaC7GojG1UGt7zA6MeSqoBcXH9bjvDpu1"
+solmart = "HL4kgSUiSG7CaC7GojG1UGt7zA6MeSqoBcXH9bjvDpu1"
 
 [registry]
 url = "https://api.apr.dev"

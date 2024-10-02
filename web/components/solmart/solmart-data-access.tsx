@@ -1,10 +1,6 @@
 'use client';
 
-import {
-  getSsfDemoDayProjectProgram,
-  getSsfDemoDayProjectProgramId,
-} from '@ssf-demo-day-project/anchor';
-import { Program } from '@coral-xyz/anchor';
+import { getSolmartProgram, getSolmartProgramId } from '@solmart/anchor';
 import { useConnection } from '@solana/wallet-adapter-react';
 import { Cluster, Keypair, PublicKey } from '@solana/web3.js';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -13,17 +9,18 @@ import toast from 'react-hot-toast';
 import { useCluster } from '../cluster/cluster-data-access';
 import { useAnchorProvider } from '../solana/solana-provider';
 import { useTransactionToast } from '../ui/ui-layout';
+import * as anchor from '@coral-xyz/anchor';
 
-export function useSsfDemoDayProjectProgram() {
+export function useSolmartProgram() {
   const { connection } = useConnection();
   const { cluster } = useCluster();
   const transactionToast = useTransactionToast();
   const provider = useAnchorProvider();
   const programId = useMemo(
-    () => getSsfDemoDayProjectProgramId(cluster.network as Cluster),
+    () => getSolmartProgramId(cluster.network as Cluster),
     [cluster]
   );
-  const program = getSsfDemoDayProjectProgram(provider);
+  const program = getSolmartProgram(provider);
 
   const accounts = useQuery({
     queryKey: ['ssf-demo-day-project', 'all', { cluster }],
@@ -36,20 +33,32 @@ export function useSsfDemoDayProjectProgram() {
   });
 
   const initialize = useMutation({
-    mutationKey: ['ssf-demo-day-project', 'initialize', { cluster }],
-    mutationFn: (keypair: Keypair) =>
-      program.methods
-        .initialize()
-        .accounts({ ssfDemoDayProject: keypair.publicKey })
+    mutationKey: ['solmart', 'initialize', { cluster }],
+    mutationFn: async ({ keypair, merchantName, currency }) => {
+      // Derive the PDA using the 'merchant' seed and merchant public key
+      const [merchantPda, merchantBump] =
+        await anchor.web3.PublicKey.findProgramAddress(
+          [Buffer.from('merchant'), keypair.publicKey.toBuffer()],
+          program.programId
+        );
+
+      // Call the initializeMerchant method with the PDA and merchant details
+      return program.methods
+        .initializeMerchant(merchantName, currency)
+        .accounts({
+          merchantData: merchantPda,
+          authority: keypair.publicKey,
+          systemProgram: anchor.web3.SystemProgram.programId,
+        })
         .signers([keypair])
-        .rpc(),
+        .rpc();
+    },
     onSuccess: (signature) => {
       transactionToast(signature);
       return accounts.refetch();
     },
-    onError: () => toast.error('Failed to initialize account'),
+    onError: () => toast.error('Failed to initialize merchant account'),
   });
-
   return {
     program,
     programId,
@@ -59,14 +68,10 @@ export function useSsfDemoDayProjectProgram() {
   };
 }
 
-export function useSsfDemoDayProjectProgramAccount({
-  account,
-}: {
-  account: PublicKey;
-}) {
+export function useSolmartProgramAccount({ account }: { account: PublicKey }) {
   const { cluster } = useCluster();
   const transactionToast = useTransactionToast();
-  const { program, accounts } = useSsfDemoDayProjectProgram();
+  const { program, accounts } = useSolmartProgram();
 
   const accountQuery = useQuery({
     queryKey: ['ssf-demo-day-project', 'fetch', { cluster, account }],
